@@ -1,0 +1,9 @@
+FROM debian:12-slim
+LABEL maintainer "Antti J. Oja <181899832+Yunraze@users.noreply.github.com>"
+
+RUN apt update && apt install -y \
+	htop \
+	\
+	&& apt clean && rm -rf /var/lib/apt/lists/*
+
+CMD [ "htop" ]

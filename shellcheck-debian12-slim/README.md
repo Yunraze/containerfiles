@@ -8,5 +8,5 @@ Compile and run the container.
 podman run --rm --volume "$PWD:/workspace:z" --workdir /workspace [CONTAINER NAME]:[TAG] /workspace/[SCRIPTNAME].sh
 ```
 
-**NOTE:** Remember that the scripts will have to be `chmod +x` invoked on them, or you get an error about permission denied.
+**NOTE:** Remember that the scripts will have to have `chmod +x` invoked on them, or you get an error about permission denied.
 

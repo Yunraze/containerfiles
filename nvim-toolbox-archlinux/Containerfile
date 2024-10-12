@@ -1,21 +1,15 @@
 FROM archlinux:latest
 
-# Install dependencies.
-RUN pacman -Sy --noconfirm \
-    base-devel \
-    neovim \
-    git \
-    gnupg \
-    openssh \
-    curl \
-    wget \
-    rsync \
-    sudo \
-    less \
-    unzip \
-    go \
-    fzf \
-    && pacman -Scc --noconfirm
+# Copy the package list into the container
+COPY packages.txt /tmp/packages.txt
+
+# Install dependencies from packages.txt
+RUN pacman -Sy --noconfirm && \
+    xargs -a /tmp/packages.txt pacman -S --noconfirm && \
+    pacman -Scc --noconfirm
+
+# Remove the package list.
+RUN rm -v /tmp/packages.txt
 
 # Terminal to xterm-256color.
 ENV TERM=xterm-256color

@@ -1,0 +1,14 @@
+base-devel
+neovim
+git
+gnupg
+openssh
+curl
+wget
+rsync
+sudo
+less
+unzip
+go
+fzf
+

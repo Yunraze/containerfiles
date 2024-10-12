@@ -1,4 +1,5 @@
 FROM archlinux:latest
+LABEL maintainer "Antti J. Oja <181899832+Yunraze@users.noreply.github.com>"
 
 # Copy the package list into the container
 COPY packages.txt /tmp/packages.txt

@@ -4,7 +4,7 @@ My objective was to create a container that I could use at work, and at home for
 
 ## Getting started
 
-**NOTE:** You can skip the `keys` subdirectory and remove those sections from the `Containerfile` if you don't need SSH keys, for e.g. GitHub, or GPG keys, for signing or encryption.**
+**NOTE:** You can skip the `keys` subdirectory and remove those sections from the `Containerfile` if you don't need SSH keys, for e.g. GitHub, or GPG keys, for signing or encryption.
 
 **NOTE:** If you do use SSH keys or GPG keys, never EVER use them without a password. Storing them into a container __IS NOT SECURE__ without a password. Even then your private keys are in a container. Do not push this kind of an image into a public registry. Use separate keys for toolbox containers that you can easily revoke.
 

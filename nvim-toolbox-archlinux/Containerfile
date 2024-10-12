@@ -76,4 +76,3 @@ RUN rm -vfr /home/$USERNAME/.gnupg/tmp
 
 # Entrypoint to start an interactive shell.
 ENTRYPOINT ["/bin/bash"]
-

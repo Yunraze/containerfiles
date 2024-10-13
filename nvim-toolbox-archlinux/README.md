@@ -96,3 +96,19 @@ Remove `--rm` if you don't want the container to be throwaway. Customize the `-v
 ```sh
 podman run --rm -it -v $(pwd):/workspace:Z --userns=keep-id:uid=1000,gid=1000 nvim-toolbox
 ```
+
+## Share or move the container to another machine
+
+You can use `podman save` and `podman load` to share the image when it isn't available locally or remotely, or can't be built.
+
+Save the image to a tar archive with:
+
+```sh
+podman save --output toolbox.tar nvim-toolbox-arch
+```
+
+Recreate an image from the tar archive with:
+
+```sh
+podman load --input toolbox.tar
+```

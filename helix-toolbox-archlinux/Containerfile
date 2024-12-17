@@ -1,0 +1,78 @@
+FROM archlinux:latest
+LABEL maintainer "Antti J. Oja <181899832+Yunraze@users.noreply.github.com>"
+
+# Copy the package list into the container
+COPY packages.txt /tmp/packages.txt
+
+# Install dependencies from packages.txt
+RUN pacman -Sy --noconfirm && \
+    xargs -a /tmp/packages.txt pacman -S --noconfirm && \
+    pacman -Scc --noconfirm
+
+# Remove the package list.
+RUN rm -v /tmp/packages.txt
+
+# Terminal to xterm-256color.
+ENV TERM=xterm-256color
+
+# Neovim as the default editor.
+ENV EDITOR=helix
+
+# Build arguments
+ARG USERNAME=dev
+ARG DOTFILES_REPO=https://github.com/Yunraze/Dotfiles.git
+ARG BRANCH=helix-toolbox-arch
+
+# Create a non-root user.
+RUN useradd -ms /bin/bash $USERNAME
+
+# Add the user to the wheel group.
+RUN usermod -aG wheel $USERNAME
+
+# Create workspace directory and set ownership to the user.
+RUN mkdir /workspace && chown -R $USERNAME:$USERNAME /workspace
+
+# Configure sudoers to allow the wheel group to execute commands without a password.
+RUN echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+# Copy SSH keys into place.
+RUN mkdir -p /home/$USERNAME/.ssh
+COPY keys/ssh/ /home/$USERNAME/.ssh
+RUN chown $USERNAME:$USERNAME /home/$USERNAME/.ssh && chmod 700 /home/$USERNAME/.ssh
+RUN chown $USERNAME:$USERNAME /home/$USERNAME/.ssh/* && chmod 400 /home/$USERNAME/.ssh/*
+
+# Copy GPG keys and keys.txt into a temporary location.
+RUN mkdir -p /home/$USERNAME/.gnupg/tmp
+COPY keys/gpg/ /home/$USERNAME/.gnupg/tmp/
+RUN chown $USERNAME:$USERNAME /home/$USERNAME/.gnupg && chmod 700 /home/$USERNAME/.gnupg
+RUN chown -R $USERNAME:$USERNAME /home/$USERNAME/.gnupg/* && chmod -R 700 /home/$USERNAME/.gnupg/*
+
+# Switch to the non-root user.
+USER $USERNAME
+
+# Set the working directory.
+WORKDIR /workspace
+
+# Clone dotfiles repo using the passed argument and copy files.
+RUN git clone --branch $BRANCH --single-branch --separate-git-dir=$HOME/Dotfiles $DOTFILES_REPO $HOME/Dotfiles-tmp
+RUN rsync --recursive --verbose --exclude '.git' $HOME/Dotfiles-tmp/ $HOME/
+RUN rm --recursive $HOME/Dotfiles-tmp
+
+# Import GPG public keys.
+RUN while IFS=" " read -r keyfile; do \
+	gpg --import /home/$USERNAME/.gnupg/tmp/"$keyfile"; \
+    done < /home/$USERNAME/.gnupg/tmp/public_keys.txt
+
+# Import GPG private keys with passwords.
+RUN while IFS=" " read -r keyfile password; do \
+	echo "$password" | gpg --batch --yes --passphrase-fd 0 --import /home/$USERNAME/.gnupg/tmp/"$keyfile"; \
+    done < /home/$USERNAME/.gnupg/tmp/private_keys.txt
+
+# Import GPG ownertrust.
+RUN gpg --import-ownertrust < /home/$USERNAME/.gnupg/tmp/trustlevel.txt
+
+# Remove the original files.
+RUN rm -vfr /home/$USERNAME/.gnupg/tmp
+
+# Entrypoint to start an interactive shell.
+ENTRYPOINT ["/bin/bash"]

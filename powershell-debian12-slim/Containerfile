@@ -1,7 +1,7 @@
 FROM debian:12-slim
 LABEL maintainer "Antti J. Oja <181899832+Yunraze@users.noreply.github.com>"
 
-ENV POWERSHELL_VERSION 7.4.6
+ENV POWERSHELL_VERSION 7.5.0
 
 RUN apt update && apt install -y \
 	ca-certificates \
